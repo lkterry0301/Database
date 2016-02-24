@@ -1,0 +1,76 @@
+INSERT syntax
+
+INSERT INTO "PUBLISHER" VALUES('Sybex','Diana','(844) 424-6122','Mill Lane, Hinton Saint     George, Somerset TA17 8SZ, UK');	
+
+INSERT INTO "BOOK" VALUES('782140661','OCP: Oracle9i Certification Kit','Sybex',2002,'$104.97 ','Computer',62);
+
+INSERT INTO "AUTHOR" VALUES('782140661','Biju Thomas');
+
+INSERT INTO "CUSTOMER" VALUES('244465997','Linda','Adams','(822) 396-2864','Gold Corner Drove, Highbridge, Somerset TA9, UK');
+
+
+DELETE syntax
+
+Delete Author: 
+
+DELETE FROM AUTHOR WHERE Author='Biju Thomas';
+
+Delete Book: 
+
+
+DELETE FROM AUTHOR WHERE ISBN='782140661';
+
+DELETE FROM BOOK WHERE ISBN='782140661';
+
+
+
+Delete Publisher: 
+
+
+DELETE FROM PUBLISHER WHERE Name='Sybex';
+
+
+Delete Customer: 
+
+
+DELETE FROM CUSTOMER WHERE CID='244465997';
+
+
+Delete Delivery: 
+
+
+DELETE FROM DELIVERY WHERE TrackingNum='4722262791';
+
+
+Delete Generate: 
+
+
+DELETE FROM GENERATE WHERE OrderID='704993087';
+
+
+Delete Order: 
+
+
+DELETE FROM ORDERS WHERE OrderID='704993087';
+
+Delete Purchase: 
+
+
+ DELETE FROM PURCHASE WHERE PurchaseID='301003325';
+
+Delete Purchase_Detail: 
+
+
+DELETE FROM PURCHASE_DETAIL WHERE PurchaseID='30100325' and ISBN='782140661'; 
+
+
+Delete Return: 
+
+
+DELETE FROM RETURN WHERE ReturnID='65821492';
+
+
+Delete Staff: 
+
+
+DELETE FROM STAFF WHERE StaffID='471561858';

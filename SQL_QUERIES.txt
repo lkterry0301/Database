@@ -1,0 +1,213 @@
+Customer View: 
+
+
+SELECT BOOK.Title, BOOK.Genre, BOOK.Price
+FROM BOOK
+WHERE BOOK.Genre = "Computer"
+GROUP BY BOOK.Price;
+
+
+Staff View: 
+
+
+SELECT BOOK.Title, T.Quantity
+FROM BOOK, (SELECT ISBN, SUM(Quantity) AS Quantity
+FROM PURCHASE_DETAIL
+GROUP BY ISBN
+ORDER BY SUM(Quantity) DESC) AS T
+WHERE BOOK.ISBN = T.ISBN;
+
+
+Publisher View:
+
+
+SELECT BOOK.Title, BOOK.Price
+FROM BOOK
+WHERE BOOK.Publisher = "Anchor Books";
+
+
+
+
+a. Find the titles of all books by Pratchett that cost less than $10
+
+
+SELECT Title
+FROM BOOK AS B, AUTHOR AS A
+WHERE B.ISBN=A.ISBN AND A.Author = 'Terry Pratchett' AND B.Price < 10;
+
+
+
+b. Give all the titles and their dates of purchase made by a single customer (you choose how to designate the customer)
+
+
+SELECT B.Title, P.Date
+FROM BOOK AS B, PURCHASE AS P, PURCHASE_DETAIL AS PD
+WHERE B.ISBN=PD.ISBN AND P.PurchaseID=PD.PurchaseID AND P.CID='244465997';
+
+
+c. Find the titles and ISBNs for all books with less than 5 copies in stock
+
+
+SELECT Title, ISBN
+FROM BOOK
+WHERE Units_in_Stock < 5;
+
+
+d. Give all the customers who purchased a book by Pratchett and the titles of Pratchett books they purchased
+
+
+SELECT C.First_Name, C.Last_Name, B.Title
+FROM CUSTOMER AS C, BOOK AS B, AUTHOR AS A, PURCHASE AS P, PURCHASE_DETAIL AS PD
+WHERE C.CID=P.CID AND B.ISBN=A.ISBN AND A.ISBN=PD.ISBN AND P.PurchaseID=PD.PurchaseID AND A.Author='Terry Pratchett';
+
+
+e. Find the total number of books purchased by a single customer with CID=244465997
+
+
+SELECT sum(Quantity)
+FROM PURCHASE_DETAIL AS PD, PURCHASE AS P
+WHERE PD.PurchaseID=P.PurchaseId AND P.CID='244465997';
+
+
+f. Find the customer who has purchased the most books and the total number of books they have purchased
+
+
+SELECT Fname, Lname, max(TotalQuantity)
+FROM (SELECT C.First_Name AS Fname, C.Last_Name AS Lname, sum(PD.Quantity) AS TotalQuantity
+FROM CUSTOMER AS C, PURCHASE_DETAIL AS PD, PURCHASE AS P
+WHERE C.CID=P.CID AND P.PurchaseID=PD.PurchaseID
+GROUP BY C.CID);
+
+
+g. Find returns made by one customer (ID = 244465997), return date and IBSN.
+
+
+SELECT R.Date, PD.ISBN
+FROM RETURN AS R, PURCHASE_DETAIL AS PD, PURCHASE AS P
+WHERE R.PurchaseID=P.PurchaseID AND P. PurchaseID=PD.PurchaseID AND P.CID='244465997';
+
+
+h. Check states of delivery of one purchase (PurchaseID=301003325)
+
+
+SELECT TrackingNum
+FROM DELIVERY
+WHERE PurchaseID ='301003325';
+
+
+i. Find publisher name that provides most orders and calculate total price.
+
+
+SELECT Pname, max(Sum)
+FROM  (SELECT sum(O.Quantity) AS Sum, P.Name AS Pname
+FROM PUBLISHER AS P, ORDERS AS O
+WHERE P.Name=O.Publisher
+GROUP BY P.Name);
+
+
+j. Provide a list of customer names, along with the total dollar amount each customer has spent.
+
+
+SELECT C.First_Name, C.Last_Name, sum(B.Price)
+FROM Customer AS C, Purchase AS P, PURCHASE_DETAIL AS PD, BOOK AS B
+WHERE P.CID=C.CID AND PD. PurchaseID=P.PurchaseID AND  B.ISBN=PD.ISBN
+GROUP BY C.CID;
+
+
+k. Provide a list of customer names and addresses for customers who have spent more than the average customer.
+
+
+SELECT C.First_Name, C.Last_Name, C.Address
+FROM CUSTOMER AS C, PURCHASE AS P, PURCHASE_DETAIL AS PD, BOOK AS B
+	WHERE P.CID=C.CID AND P.PurchaseID=PD.PurchaseID  AND PD.ISBN=B.ISBN
+	GROUP BY C.CID
+	HAVING sum(B.Price) >
+	(SELECT avg (Total)
+FROM (SELECT sum(B.Price) AS Total 
+FROM CUSTOMER AS C, PURCHASE AS P, PURCHASE_DETAIL AS PD, BOOK AS B
+WHERE B.ISBN=PD.ISBN AND P.CID=C.CID AND  P.PurchaseID=PD.PurchaseID  
+GROUP BY C.CID));
+
+
+l. Provide a list of the titles in the database and associated total copies sold to customers, sorted from the title that has sold the most individual copies to the title that has sold the least.
+
+
+SELECT Title, sum(Quantity)
+FROM BOOK AS B, PURCHASE_DETAIL AS P
+WHERE B.ISBN=P.ISBN
+GROUP BY P.ISBN
+ORDER BY 2 DESC;
+
+
+m. Provide a list of the titles in the database and associated dollar totals for copies sold to customers, sorted from the title that has sold the highest dollar amount to the title that has sold the smallest.
+
+
+SELECT Title, sum(B. Price*P. Quantity) AS DollarTotal
+FROM Book AS B, Purchase_Detail AS P
+WHERE B.ISBN=P.ISBN
+GROUP BY P.ISBN
+ORDER BY 2 DESC;
+
+
+n. Find the most popular author in the database (i.e. the one who has sold the most books)
+
+
+
+SELECT Name, max(sum) 
+FROM(
+SELECT A.AUTHOR  AS Name, sum(TotalQuantity) AS sum
+FROM Author AS A, (
+SELECT ISBN, sum(Quantity) AS TotalQuantity
+FROM Purchase_Detail
+GROUP BY ISBN) AS S
+WHERE A.ISBN=S.ISBN
+GROUP BY A. AUTHOR);
+
+
+o. Find the most profitable author in the database for this store (i.e. the one who has brought in the most money)
+
+
+SELECT Name, max(DollarTotal)
+FROM(
+SELECT sum(B.Price*PD.Quantity) AS DollarTotal, A.AUTHOR AS Name
+FROM AUTHOR AS A, BOOK AS B, PURCHASE_DETAIL AS PD
+WHERE B.ISBN=A.ISBN AND B.ISBN=PD.ISBN
+GROUP BY A.AUTHOR);
+
+
+p. Provide a list of customer information for customers who purchased anything written by the most profitable author in the database.
+
+
+SELECT C.CID ,C.First_Name, C.Last_Name, C.Address
+FROM CUSTOMER AS C, PURCHASE AS P, PURCHASE_DETAIL AS PD, AUTHOR AS A, BOOK AS B,
+(SELECT Name, max(DollarTotal)
+FROM(
+SELECT sum(B.Price*PD.Quantity) AS DollarTotal, A.Author AS Name
+FROM AUTHOR AS A, BOOK AS B, PURCHASE_DETAIL AS PD, PURCHASE AS P
+WHERE B.ISBN=A.ISBN AND P.PurchaseID=PD.PurchaseID AND B.ISBN=PD.ISBN
+GROUP BY A.AUTHOR)) AS M
+WHERE M.Name=A.AUTHOR AND A.ISBN=PD.ISBN AND PD.PurchaseID=P.PurchaseID AND C.CID=P.CID
+GROUP BY C.CID;
+
+
+q. Provide the list of authors who wrote the books purchased by the customers who have spent more than the average customer.
+
+
+SELECT A.Author
+FROM (
+SELECT B.ISBN AS ISBN
+FROM CUSTOMER AS C, PURCHASE AS P, PURCHASE_DETAIL AS PD, BOOK AS B
+	WHERE P.CID=C.CID AND P.PurchaseID=PD.PurchaseID  AND PD.ISBN=B.ISBN
+	GROUP BY C.CID
+	HAVING sum(B.Price) >
+	(SELECT avg (Total)
+FROM (SELECT sum(B.Price) AS Total 
+FROM CUSTOMER AS C, PURCHASE AS P, PURCHASE_DETAIL AS PD, BOOK AS B
+WHERE B.ISBN=PD.ISBN AND P.CID=C.CID AND  P.PurchaseID=PD.PurchaseID  
+GROUP BY C.CID))) AS S, AUTHOR AS A
+WHERE A.ISBN=S.ISBN
+GROUP BY A.Author;
+
+
+
+

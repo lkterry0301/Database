@@ -1,0 +1,16 @@
+Database Management System for Bits & Books Project Database
+Author: Kun Liu, Stefan Fraga, Thomas Dail, Jennifer Hong
+
+This file includes the following documents:
+
+1. BitsAndBooks.sqlite 
+The data base file which can be opened using sqlite, including all table structure and data
+
+2. BitsAndBooks.sql
+This file has all SQL and data to rebuild the database. If BitsAndBooks.sqlite cannot be opened properly, simply copy& paste this whole txt file into Execute SQL window in SQLite.
+
+3. SQL_QUERIES.txt
+All SQL queries provided in the report which can be used to test the database
+
+4. SQL_INSERT_DELETE
+A text file containing all of the sample INSERT and DELETE statements provided in user manual
